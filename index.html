@@ -2,44 +2,69 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>AI技术底层逻辑 — 微课 v4.2 · 1920高清</title>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<title>AI技术底层逻辑 — 微课 v4.3 · 自适应+女声</title>
 <style>
+/* ============ 全局 ============ */
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:"Microsoft YaHei","PingFang SC",sans-serif;background:#000;height:100vh;display:flex;flex-direction:column;overflow:hidden}
-.header{background:linear-gradient(135deg,#0d1b2a,#1b2838);padding:12px 20px;display:flex;align-items:center;gap:12px;border-bottom:1px solid #1e3a5f;flex-shrink:0;transition:opacity .4s,transform .4s;z-index:100}
-.header .logo{font-size:18px}
-.header h2{font-size:15px;font-weight:500;color:#64b5f6}
+html,body{height:100%;overflow:hidden}
+body{font-family:"Microsoft YaHei","PingFang SC",sans-serif;background:#000;display:flex;flex-direction:column}
+
+/* ============ 顶栏 ============ */
+.header{background:linear-gradient(135deg,#0d1b2a,#1b2838);padding:clamp(6px,1.5vh,12px) clamp(10px,3vw,20px);display:flex;align-items:center;gap:clamp(6px,2vw,12px);border-bottom:1px solid #1e3a5f;flex-shrink:0;transition:opacity .4s,transform .4s;z-index:100}
+.header .logo{font-size:clamp(14px,2.5vw,18px)}
+.header h2{font-size:clamp(12px,2vw,15px);font-weight:500;color:#64b5f6}
 .header.hidden{opacity:0;transform:translateY(-100%);pointer-events:none}
-.version{color:#546e7a;font-size:11px;margin-left:auto}
-.main{flex:1;display:flex;align-items:center;justify-content:center;padding:0;background:#000}
-.slide{display:none;width:100%;height:100%;background-size:contain;background-position:center;background-repeat:no-repeat;position:relative}
+.version{color:#546e7a;font-size:clamp(9px,1.5vw,11px);margin-left:auto;display:none}
+@media(min-width:600px){.version{display:inline}}
+
+/* ============ 主区域（自适应核心） ============ */
+.main{flex:1;position:relative;background:#000;overflow:hidden;min-height:0}
+.slide{position:absolute;inset:0;display:none;background-size:contain;background-position:center;background-repeat:no-repeat}
 .slide.active{display:block;animation:fadeIn .4s ease}
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
-.controls{background:rgba(13,27,42,0.95);padding:14px 20px;display:flex;align-items:center;justify-content:center;gap:12px;border-top:1px solid #1e3a5f;flex-shrink:0;transition:opacity .4s,transform .4s;z-index:100;position:relative}
+
+/* ============ 底栏控件 ============ */
+.controls{background:rgba(13,27,42,0.97);padding:clamp(6px,1.5vh,14px) clamp(8px,2vw,20px);display:flex;align-items:center;justify-content:center;gap:clamp(4px,1.5vw,12px);border-top:1px solid #1e3a5f;flex-shrink:0;transition:opacity .4s,transform .4s;z-index:100;flex-wrap:wrap}
 .controls.hidden{opacity:0;transform:translateY(100%);pointer-events:none}
-.controls button{background:#1a3350;border:1px solid #2a5080;color:#90caf9;padding:8px 14px;border-radius:8px;cursor:pointer;font-size:13px;transition:all .2s}
+.controls button{background:#1a3350;border:1px solid #2a5080;color:#90caf9;padding:clamp(5px,1vh,8px) clamp(8px,2vw,14px);border-radius:8px;cursor:pointer;font-size:clamp(11px,2vw,13px);transition:all .2s;white-space:nowrap;touch-action:manipulation}
 .controls button:hover{background:#244878;border-color:#64b5f6}
 .controls button:disabled{opacity:.3;cursor:default}
-.controls button.play-btn{background:#1565c0;border-color:#1976d2;color:#fff;font-size:16px;padding:10px 24px;border-radius:10px}
-.speed-group{display:flex;gap:3px}.speed-btn{padding:5px 10px!important;font-size:11px!important;min-width:38px}
+.controls button.play-btn{background:#1565c0;border-color:#1976d2;color:#fff;font-size:clamp(14px,2.5vw,16px);padding:clamp(7px,1.5vh,10px) clamp(14px,4vw,24px);border-radius:10px}
+.speed-group{display:flex;gap:3px}.speed-btn{padding:clamp(3px,.8vh,5px) clamp(6px,1.5vw,10px)!important;font-size:clamp(9px,1.5vw,11px)!important;min-width:clamp(28px,6vw,38px)}
 .speed-btn.active-speed{background:#1565c0!important;border-color:#2196f3!important;color:#fff!important}
-.progress{width:100px;height:14px;background:#1e3050;border-radius:7px;overflow:hidden;cursor:pointer}
+
+/* 进度条 */
+.progress{width:clamp(60px,15vw,100px);height:clamp(10px,2vh,14px);background:#1e3050;border-radius:7px;overflow:hidden;cursor:pointer;touch-action:manipulation}
 .progress-bar{height:4px;background:#2196f3;width:0;transition:width .1s linear;border-radius:2px}
-.audio-status{font-size:11px;color:#546e7a;min-width:50px;text-align:center}
-.page-nav{display:flex;align-items:center;gap:8px}
-.page-nav span{font-size:13px;color:#90caf9;min-width:30px;text-align:center}
-.page-slider{-webkit-appearance:none;width:100px;height:5px;background:#1e3050;border-radius:3px;outline:none;cursor:pointer}
-.page-slider::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:#2196f3;cursor:pointer;border:2px solid #64b5f6}
+
+/* 状态文字 */
+.audio-status{font-size:clamp(9px,1.5vw,11px);color:#546e7a;min-width:clamp(40px,10vw,50px);text-align:center}
+
+/* 页码 */
+.page-nav{display:flex;align-items:center;gap:clamp(4px,1vw,8px)}
+.page-nav span{font-size:clamp(11px,2vw,13px);color:#90caf9;min-width:clamp(24px,6vw,30px);text-align:center}
+.page-slider{-webkit-appearance:none;width:clamp(60px,12vw,100px);height:5px;background:#1e3050;border-radius:3px;outline:none;cursor:pointer;touch-action:manipulation}
+.page-slider::-webkit-slider-thumb{-webkit-appearance:none;width:clamp(14px,3vw,16px);height:clamp(14px,3vw,16px);border-radius:50%;background:#2196f3;cursor:pointer;border:2px solid #64b5f6}
+
+/* ============ 手机优化 ============ */
+@media(max-width:480px){
+  .controls{justify-content:space-evenly;gap:4px}
+  .speed-group{order:1}
+  .progress{order:2}
+}
+@media(min-width:1200px){
+  .main{max-width:80%;margin:0 auto}
+}
 </style>
 </head>
 <body>
 <div class="header">
   <div class="logo">🏢</div>
   <h2>AI技术底层逻辑</h2>
-  <span class="version">微课 v4.2 · 1920高清+音频修复</span>
+  <span class="version">v4.3 · 自适应+女声</span>
 </div>
-<div class="main" id="main-area" style="cursor:pointer" onclick="togglePlay()">
+<div class="main" id="main-area" onclick="handleSlideTap(event)">
   <div class="slide" id="slide-1" style="background-image:url('slides_v4.2/slide_01.png');"></div>
   <div class="slide" id="slide-2" style="background-image:url('slides_v4.2/slide_02.png');"></div>
   <div class="slide" id="slide-3" style="background-image:url('slides_v4.2/slide_03.png');"></div>
@@ -59,10 +84,10 @@ body{font-family:"Microsoft YaHei","PingFang SC",sans-serif;background:#000;heig
   <div class="slide" id="slide-17" style="background-image:url('slides_v4.2/slide_17.png');"></div>
   <div class="slide" id="slide-18" style="background-image:url('slides_v4.2/slide_18.png');"></div>
 </div>
-<div class="controls">
-  <button onclick="prevSlide()" id="btn-prev">◀ 上一页</button>
+<div class="controls" id="controls-bar">
+  <button onclick="prevSlide()" id="btn-prev">◀</button>
   <button class="play-btn" onclick="togglePlay()" id="btn-play">▶ 播放</button>
-  <button onclick="nextSlide()" id="btn-next">下一页 ▶</button>
+  <button onclick="nextSlide()" id="btn-next">▶</button>
   <div class="speed-group">
     <button class="speed-btn active-speed" onclick="setSpeed(1)" id="spd-1">1x</button>
     <button class="speed-btn" onclick="setSpeed(1.2)" id="spd-1.2">1.2x</button>
@@ -88,6 +113,13 @@ document.getElementById('progress-wrap').addEventListener('click',(e)=>{
   let rect=e.target.closest('.progress').getBoundingClientRect();
   audio.currentTime=((e.clientX-rect.left)/rect.width)*audio.duration;
 });
+document.getElementById('progress-wrap').addEventListener('touchend',(e)=>{
+  if(!audio.duration)return;
+  let rect=e.target.closest('.progress').getBoundingClientRect();
+  let x=e.changedTouches[0].clientX;
+  audio.currentTime=((x-rect.left)/rect.width)*audio.duration;
+});
+
 function showSlide(n){
   document.querySelectorAll('.slide').forEach(s=>s.classList.remove('active'));
   let slide=document.getElementById('slide-'+n);
@@ -151,7 +183,31 @@ document.addEventListener('keydown',(e)=>{
   if(e.key==='1')setSpeed(1);if(e.key==='2')setSpeed(1.2);
   if(e.key==='3')setSpeed(1.5);if(e.key==='4')setSpeed(2);
 });
-let hideTimer,ctrls=document.querySelector('.controls'),hdr=document.querySelector('.header');
+
+// 手机触摸滑动
+let touchStartX=0,touchStartY=0;
+document.addEventListener('touchstart',(e)=>{touchStartX=e.touches[0].clientX;touchStartY=e.touches[0].clientY;},{passive:true});
+document.addEventListener('touchend',(e)=>{
+  let dx=e.changedTouches[0].clientX-touchStartX;
+  let dy=e.changedTouches[0].clientY-touchStartY;
+  if(Math.abs(dx)>Math.abs(dy)&&Math.abs(dx)>40){
+    dx>0?prevSlide():nextSlide();
+  }
+});
+
+// 点击主区域切换播放
+function handleSlideTap(e){
+  if(e.target.closest('.controls'))return;
+  if(e.target.closest('button'))return;
+  let rect=e.target.closest('.main').getBoundingClientRect();
+  let x=e.clientX-rect.left;
+  if(x<rect.width*.3)prevSlide();
+  else if(x>rect.width*.7)nextSlide();
+  else togglePlay();
+}
+
+// Header/Controls 联动隐藏
+let hideTimer,ctrls=document.getElementById('controls-bar'),hdr=document.querySelector('.header');
 function showCtrls(){
   ctrls.classList.remove('hidden');hdr.classList.remove('hidden');
   if(hideTimer)clearTimeout(hideTimer);
