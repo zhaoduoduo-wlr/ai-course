@@ -84,6 +84,7 @@ body{font-family:"Microsoft YaHei","PingFang SC",sans-serif;background:#000;heig
 <audio id="audio-preload" preload="none" style="display:none"></audio>
 
 <script>
+
 const TOTAL=18;
 let current=1,isPlaying=false,currentSpeed=1;
 let audio=document.getElementById('audio-player');
@@ -92,137 +93,77 @@ let slider=document.getElementById('page-slider');
 let pageLabel=document.getElementById('page-label');
 let statusEl=document.getElementById('audio-status');
 let loadingEl=document.getElementById('loading-hint');
+let mainArea=document.getElementById('main-area');
 
-// ========== 图片懒加载：只加载当前页+预加载下一页 ==========
-const imgCache={};
-
-function loadSlideImg(n){
-  if(n<1||n>TOTAL)return;
-  if(imgCache[n])return; // 已缓存
-  let slide=document.getElementById('slide-'+n);
-  if(!slide||slide.style.backgroundImage)return; // 已加载
-  let url='slides_v4.2/slide_'+String(n).padStart(2,'0')+'.png';
-  // 创建隐藏img预加载
-  let img=new Image();
-  img.onload=function(){
-    imgCache[n]=true;
-    slide.style.backgroundImage='url('+url+')';
-    if(n===current)loadingEl.style.display='none';
-  };
-  img.onerror=function(){
-    // 失败也标记，避免反复重试
-    imgCache[n]=true;
-    if(n===current)loadingEl.style.display='none';
-  };
-  img.src=url;
-}
-
-// ========== 音频：手动加载，不自动预加载 ==========
+// ========== 音频路径 ==========
 function audioSrc(n){return 'audio/slide_'+String(n).padStart(2,'0')+'.mp3';}
+function slideImg(n){return 'slides_v4.2/slide_'+String(n).padStart(2,'0')+'.png';}
 
-function loadAudio(n){
-  if(n<1||n>TOTAL)return;
-  audio.src=audioSrc(n);
-  audio.load();
-}
-
-function preloadNextAudio(n){
-  if(n<1||n>TOTAL)return;
-  // 用 preload 元素悄悄加载下一个音频
-  if(preload.src!==audioSrc(n)){
-    preload.src=audioSrc(n);
-    preload.load();
-  }
-}
-
-// 滑动条
-slider.addEventListener('input',()=>{goTo(parseInt(slider.value));});
-
-// 进度条点击
-document.getElementById('progress-wrap').addEventListener('click',(e)=>{
-  if(!audio.duration)return;
-  let rect=e.target.closest('.progress').getBoundingClientRect();
-  audio.currentTime=((e.clientX-rect.left)/rect.width)*audio.duration;
-});
-document.getElementById('progress-wrap').addEventListener('touchend',(e)=>{
-  if(!audio.duration)return;
-  let rect=e.target.closest('.progress').getBoundingClientRect();
-  let x=e.changedTouches[0].clientX;
-  audio.currentTime=((x-rect.left)/rect.width)*audio.duration;
-});
-
+// ========== 图片：直接设置 backgroundImage，不等 onload ==========
 function showSlide(n){
   document.querySelectorAll('.slide').forEach(s=>s.classList.remove('active'));
   let slide=document.getElementById('slide-'+n);
   if(slide){
     slide.classList.add('active');
-    // 懒加载：当前页图片
-    loadSlideImg(n);
-    // 预加载下一页图片
-    if(n<TOTAL)loadSlideImg(n+1);
+    // 直接设背景图，浏览器自动渐进加载（不会黑屏）
+    slide.style.backgroundImage='url('+slideImg(n)+')';
+    // 预加载下一页
+    if(n<TOTAL){
+      let next=document.getElementById('slide-'+(n+1));
+      if(next&&!next.style.backgroundImage)next.style.backgroundImage='url('+slideImg(n+1)+')';
+    }
+    loadingEl.style.display='none';
   }
   document.getElementById('btn-prev').disabled=(n<=1);
   document.getElementById('btn-next').disabled=(n>=TOTAL);
   slider.value=n;pageLabel.textContent=n+'/'+TOTAL;current=n;
 }
 
-function goTo(n){
-  if(n<1||n>TOTAL||n===current)return;
-  let wasPlaying=isPlaying;
-  audio.pause();isPlaying=false;updatePlayBtn();
-  statusEl.textContent='⏸';
-  document.getElementById('progress-bar').style.width='0%';
-  showSlide(n);
-  loadAudio(n);
-  preloadNextAudio(n+1);
-  if(wasPlaying)setTimeout(()=>playCurrent(),300);
+// ========== 音频：用一个 promise 封装加载+就绪 ==========
+function ensureAudioReady(n){
+  return new Promise((resolve,reject)=>{
+    // 如果已经是同一段音频且就绪，直接返回
+    let targetSrc=audioSrc(n);
+    if(audio.src&&audio.src.indexOf('slide_'+String(n).padStart(2,'0'))!==-1&&audio.readyState>=2){
+      resolve();return;
+    }
+    // 设置新音频源
+    audio.src=targetSrc;
+    // 等待就绪
+    let done=false;
+    function ready(){if(!done){done=true;resolve();}}
+    function fail(e){if(!done){done=true;reject(e);}}
+    audio.addEventListener('canplaythrough',ready,{once:true});
+    audio.addEventListener('loadeddata',ready,{once:true});
+    audio.addEventListener('error',fail,{once:true});
+    audio.load();
+    // 5秒超时
+    setTimeout(()=>{if(!done){done=true;reject(new Error('timeout'));}},5000);
+  });
 }
 
-function prevSlide(){if(current>1)goTo(current-1);}
-function nextSlide(){if(current<TOTAL)goTo(current+1);}
+// ========== 播放 ==========
+function playCurrent(){
+  statusEl.textContent='⏳';updatePlayBtn();
+  audio.playbackRate=currentSpeed;
+  ensureAudioReady(current).then(()=>{
+    return audio.play();
+  }).then(()=>{
+    isPlaying=true;updatePlayBtn();
+    statusEl.textContent='🔊 '+audio.playbackRate.toFixed(1)+'x';
+    // 预加载下一个音频
+    if(current<TOTAL&&preload.src!==audioSrc(current+1)){
+      preload.src=audioSrc(current+1);
+    }
+  }).catch(e=>{
+    statusEl.textContent='❌ 重试';isPlaying=false;updatePlayBtn();
+    console.log('播放失败:',e.message);
+  });
+}
 
 function togglePlay(){
   if(isPlaying){audio.pause();isPlaying=false;statusEl.textContent='⏸';updatePlayBtn();}
   else playCurrent();
-}
-
-function playCurrent(){
-  statusEl.textContent='⏳';updatePlayBtn();
-  audio.playbackRate=currentSpeed;
-
-  function doPlay(){
-    audio.play().then(()=>{
-      isPlaying=true;updatePlayBtn();
-      statusEl.textContent='🔊 '+audio.playbackRate.toFixed(1)+'x';
-      preloadNextAudio(current+1);
-    }).catch(e=>{
-      statusEl.textContent='❌ 点击播放';isPlaying=false;updatePlayBtn();
-    });
-  }
-
-  // 如果音频已加载好，直接播
-  if(audio.readyState>=2){ // HAVE_CURRENT_DATA
-    doPlay();
-    return;
-  }
-
-  // 否则等加载完成
-  loadAudio(current);
-  let fired=false;
-  audio.addEventListener('canplaythrough',function h(){
-    if(fired)return;fired=true;
-    audio.removeEventListener('canplaythrough',h);
-    doPlay();
-  },{once:true});
-
-  // 3秒超时保底
-  setTimeout(()=>{
-    if(!fired){fired=true;doPlay();}
-  },3000);
-}
-
-function updatePlayBtn(){
-  document.getElementById('btn-play').textContent=isPlaying?'⏸ 暂停':'▶ 播放';
 }
 
 function setSpeed(rate){
@@ -230,26 +171,58 @@ function setSpeed(rate){
   document.querySelectorAll('.speed-btn').forEach(b=>b.classList.remove('active-speed'));
   let btn=document.getElementById('spd-'+rate);
   if(btn)btn.classList.add('active-speed');
-  if(isPlaying)document.getElementById('audio-status').textContent='🔊 '+rate.toFixed(1)+'x';
+  if(isPlaying)statusEl.textContent='🔊 '+rate.toFixed(1)+'x';
 }
 
-// timeupdate 用 requestAnimationFrame 节流
+function updatePlayBtn(){
+  document.getElementById('btn-play').textContent=isPlaying?'⏸ 暂停':'▶ 播放';
+}
+
+// ========== 导航 ==========
+function goTo(n){
+  if(n<1||n>TOTAL||n===current)return;
+  let wasPlaying=isPlaying;
+  audio.pause();isPlaying=false;updatePlayBtn();
+  statusEl.textContent='⏸';
+  document.getElementById('progress-bar').style.width='0%';
+  showSlide(n);
+  if(wasPlaying)playCurrent();
+}
+
+function prevSlide(){if(current>1)goTo(current-1);}
+function nextSlide(){if(current<TOTAL)goTo(current+1);}
+
+// ========== 滑块：debounce 防抖 ==========
+let sliderTimer;
+slider.addEventListener('input',()=>{
+  clearTimeout(sliderTimer);
+  sliderTimer=setTimeout(()=>goTo(parseInt(slider.value)),200);
+});
+
+// ========== 进度条 ==========
+let clickArea=document.getElementById('progress-wrap');
+clickArea.addEventListener('click',(e)=>{
+  if(!audio.duration)return;
+  let rect=e.target.closest('.progress').getBoundingClientRect();
+  audio.currentTime=((e.clientX-rect.left)/rect.width)*audio.duration;
+});
+
+// ========== timeupdate 节流 ==========
 let lastTimeUpdate=0;
 audio.addEventListener('timeupdate',()=>{
   let now=Date.now();
-  if(now-lastTimeUpdate<250)return; // 每秒最多4次
+  if(now-lastTimeUpdate<250)return;
   lastTimeUpdate=now;
   if(audio.duration){
     document.getElementById('progress-bar').style.width=(audio.currentTime/audio.duration*100)+'%';
-    let s=Math.floor(audio.currentTime),m=Math.floor(s/60);s%=60;
-    // 只在变化时更新，减少DOM操作
   }
 });
 
 audio.addEventListener('ended',()=>{
   if(current<TOTAL){
-    goTo(current+1);
-    setTimeout(()=>{if(!isPlaying)playCurrent();},400);
+    current++;
+    goTo(current);
+    setTimeout(()=>{if(!isPlaying&&current<=TOTAL)playCurrent();},400);
   }else{
     isPlaying=false;updatePlayBtn();statusEl.textContent='✅ 完成';
     document.getElementById('progress-bar').style.width='100%';
@@ -260,7 +233,7 @@ audio.addEventListener('error',()=>{
   statusEl.textContent='❌';isPlaying=false;updatePlayBtn();
 });
 
-// 键盘
+// ========== 键盘 ==========
 document.addEventListener('keydown',(e)=>{
   if(e.key==='ArrowLeft')prevSlide();
   if(e.key==='ArrowRight')nextSlide();
@@ -269,7 +242,7 @@ document.addEventListener('keydown',(e)=>{
   if(e.key==='3')setSpeed(1.5);if(e.key==='4')setSpeed(2);
 });
 
-// 触摸滑动
+// ========== 触摸滑动 ==========
 let touchStartX=0,touchStartY=0;
 document.addEventListener('touchstart',(e)=>{touchStartX=e.touches[0].clientX;touchStartY=e.touches[0].clientY;},{passive:true});
 document.addEventListener('touchend',(e)=>{
@@ -280,11 +253,9 @@ document.addEventListener('touchend',(e)=>{
   }
 });
 
-// 点击主区域
-let mainArea=document.getElementById('main-area');
+// ========== 点击主区域 ==========
 mainArea.addEventListener('click',function(e){
   if(e.target.closest('.controls'))return;
-  if(e.target.closest('button'))return;
   let rect=mainArea.getBoundingClientRect();
   let x=e.clientX-rect.left;
   if(x<rect.width*.25)prevSlide();
@@ -292,7 +263,7 @@ mainArea.addEventListener('click',function(e){
   else togglePlay();
 });
 
-// Header/Controls 自动隐藏
+// ========== Header/Controls 自动隐藏 ==========
 let hideTimer,ctrls=document.getElementById('controls-bar'),hdr=document.querySelector('.header');
 function showCtrls(){
   ctrls.classList.remove('hidden');hdr.classList.remove('hidden');
@@ -309,11 +280,11 @@ ctrls.addEventListener('mouseleave',()=>{
   if(isPlaying)hideTimer=setTimeout(()=>{ctrls.classList.add('hidden');hdr.classList.add('hidden');},1000);
 });
 
-// ========== 初始化：只加载第1页 ==========
-loadSlideImg(1);   // 加载第1张图
-loadAudio(1);      // 加载第1个音频
+// ========== 初始化 ==========
 showSlide(1);
+audio.src=audioSrc(1);
 setTimeout(()=>{ctrls.classList.add('hidden');hdr.classList.add('hidden');},3000);
+
 </script>
 </body>
 </html>
