@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<title>AI技术底层逻辑 — 微课 v4.4 · 极速加载版</title>
+<title>AI技术底层逻辑 — 微课 v4.4b · 修复手机播放版</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:"Microsoft YaHei","PingFang SC",sans-serif;background:#000;height:100vh;display:flex;flex-direction:column;overflow:hidden}
@@ -40,7 +40,7 @@ body{font-family:"Microsoft YaHei","PingFang SC",sans-serif;background:#000;heig
 <div class="header">
   <div class="logo">🏢</div>
   <h2>AI技术底层逻辑</h2>
-  <span class="version">v4.4 · 极速加载</span>
+  <span class="version">v4.4b · 修复手机播放</span>
 </div>
 <div class="main" id="main-area">
   <div class="loading" id="loading-hint">加载中...</div>
@@ -187,20 +187,38 @@ function togglePlay(){
 }
 
 function playCurrent(){
-  // 确保当前音频已加载
-  if(!audio.src||audio.src.indexOf('slide_'+String(current).padStart(2,'0'))===-1){
-    loadAudio(current);
-  }
   statusEl.textContent='⏳';updatePlayBtn();
   audio.playbackRate=currentSpeed;
-  audio.play().then(()=>{
-    isPlaying=true;updatePlayBtn();
-    statusEl.textContent='🔊 '+audio.playbackRate.toFixed(1)+'x';
-    preloadNextAudio(current+1);
-  }).catch(e=>{
-    statusEl.textContent='❌ 需手动播放';isPlaying=false;updatePlayBtn();
-    console.log('自动播放被阻止，请点击播放按钮');
-  });
+
+  function doPlay(){
+    audio.play().then(()=>{
+      isPlaying=true;updatePlayBtn();
+      statusEl.textContent='🔊 '+audio.playbackRate.toFixed(1)+'x';
+      preloadNextAudio(current+1);
+    }).catch(e=>{
+      statusEl.textContent='❌ 点击播放';isPlaying=false;updatePlayBtn();
+    });
+  }
+
+  // 如果音频已加载好，直接播
+  if(audio.readyState>=2){ // HAVE_CURRENT_DATA
+    doPlay();
+    return;
+  }
+
+  // 否则等加载完成
+  loadAudio(current);
+  let fired=false;
+  audio.addEventListener('canplaythrough',function h(){
+    if(fired)return;fired=true;
+    audio.removeEventListener('canplaythrough',h);
+    doPlay();
+  },{once:true});
+
+  // 3秒超时保底
+  setTimeout(()=>{
+    if(!fired){fired=true;doPlay();}
+  },3000);
 }
 
 function updatePlayBtn(){
