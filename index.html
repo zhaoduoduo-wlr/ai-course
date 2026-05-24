@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<title>AI技术底层逻辑 — 微课 v4.6 · 倍速持久+预加载+横屏</title>
+<title>AI技术底层逻辑 — 微课 v4.7 · 音频竞态修复</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:"Microsoft YaHei","PingFang SC",sans-serif;background:#000;height:100vh;height:100dvh;display:flex;flex-direction:column;overflow:hidden}@media(orientation:landscape){body{height:100vh}.header{padding:6px 20px}.header h2{font-size:13px}.controls{padding:8px 20px}.controls button{padding:6px 10px;font-size:11px}.controls button.play-btn{padding:8px 20px;font-size:14px}}
@@ -121,16 +121,20 @@ function showSlide(n){
 // ===== 音频：Promise 等就绪 + 倍速在播放前设置 =====
 function ensureAudioReady(n){
   return new Promise((resolve,reject)=>{
+    // 已经是同一段且就绪 → 直接返回
     if(audio.src&&audio.src.indexOf('slide_'+String(n).padStart(2,'0'))!==-1&&audio.readyState>=2){
       resolve();return;
     }
-    audio.src=audioSrc(n);
+    // ★ 先挂监听器，再设 src（避免竞态）
     let done=false;
     function ready(){if(!done){done=true;resolve();}}
+    function fail(e){if(!done){done=true;reject(e);}}
     audio.addEventListener('canplaythrough',ready,{once:true});
     audio.addEventListener('loadeddata',ready,{once:true});
-    audio.addEventListener('error',e=>{if(!done){done=true;reject(e);}},{once:true});
-    audio.load();
+    audio.addEventListener('error',fail,{once:true});
+    // 设 src 触发加载（不调 load()，避免重复）
+    audio.src=audioSrc(n);
+    // 5秒超时保底
     setTimeout(()=>{if(!done){done=true;reject(new Error('timeout'));}},5000);
   });
 }
