@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<title>AI技术底层逻辑 — 微课 v4.3c · 自适应+女声+横屏</title>
+<title>AI技术底层逻辑 — 微课 v4.3d · 秒播+自适应+女声</title>
 <style>
 /* ============ 全局 ============ */
 *{margin:0;padding:0;box-sizing:border-box}
@@ -104,12 +104,15 @@ body{font-family:"Microsoft YaHei","PingFang SC",sans-serif;background:#000;disp
     <input type="range" id="page-slider" min="1" max="18" value="1" class="page-slider">
   </div>
 </div>
-<audio id="audio-player" preload="none"></audio>
+<audio id="audio-player" preload="auto"></audio>
+<audio id="audio-preload" preload="auto" style="display:none"></audio>
 <script>
 const TOTAL=18;let current=1,isPlaying=false,currentSpeed=1;
 let audio=document.getElementById('audio-player');
+let preload=document.getElementById('audio-preload');
 let slider=document.getElementById('page-slider');
 let pageLabel=document.getElementById('page-label');
+let statusEl=document.getElementById('audio-status');
 slider.addEventListener('input',()=>{goTo(parseInt(slider.value));});
 document.getElementById('progress-wrap').addEventListener('click',(e)=>{
   if(!audio.duration)return;
@@ -123,6 +126,18 @@ document.getElementById('progress-wrap').addEventListener('touchend',(e)=>{
   audio.currentTime=((x-rect.left)/rect.width)*audio.duration;
 });
 
+function src(n){return 'audio/slide_'+String(n).padStart(2,'0')+'.mp3';}
+
+// 提前加载当前页+下一页
+function preloadAudio(n){
+  if(n>=1&&n<=TOTAL){
+    let url=src(n);
+    if(preload.src!==url){preload.src=url;preload.load();}
+  }
+}
+// 页面加载时预加载第1页
+audio.src=src(1);audio.load();preloadAudio(2);
+
 function showSlide(n){
   document.querySelectorAll('.slide').forEach(s=>s.classList.remove('active'));
   let slide=document.getElementById('slide-'+n);
@@ -134,25 +149,28 @@ function showSlide(n){
 function goTo(n){
   if(n<1||n>TOTAL)return;
   let wasPlaying=isPlaying;audio.pause();isPlaying=false;updatePlayBtn();
-  document.getElementById('audio-status').textContent='⏸';
+  statusEl.textContent='⏸';
   document.getElementById('progress-bar').style.width='0%';
   showSlide(n);
+  // 切换时预加载
+  audio.src=src(n);audio.load();preloadAudio(n+1);
   if(wasPlaying)setTimeout(()=>playCurrent(),200);
 }
 function prevSlide(){goTo(current-1);}
 function nextSlide(){goTo(current+1);}
 function togglePlay(){
-  if(isPlaying){audio.pause();isPlaying=false;document.getElementById('audio-status').textContent='⏸';updatePlayBtn();}
+  if(isPlaying){audio.pause();isPlaying=false;statusEl.textContent='⏸';updatePlayBtn();}
   else playCurrent();
 }
 function playCurrent(){
-  audio.src='audio/slide_'+String(current).padStart(2,'0')+'.mp3';
-  audio.load();audio.playbackRate=currentSpeed;
+  statusEl.textContent='⏳';updatePlayBtn();
+  audio.playbackRate=currentSpeed;
   audio.play().then(()=>{
     isPlaying=true;updatePlayBtn();
-    document.getElementById('audio-status').textContent='🔊 '+audio.playbackRate.toFixed(1)+'x';
+    statusEl.textContent='🔊 '+audio.playbackRate.toFixed(1)+'x';
+    preloadAudio(current+1);
   }).catch(e=>{
-    document.getElementById('audio-status').textContent='❌';isPlaying=false;updatePlayBtn();
+    statusEl.textContent='❌';isPlaying=false;updatePlayBtn();
   });
 }
 function updatePlayBtn(){
@@ -169,15 +187,15 @@ audio.addEventListener('timeupdate',()=>{
   if(audio.duration){
     document.getElementById('progress-bar').style.width=(audio.currentTime/audio.duration*100)+'%';
     let s=Math.floor(audio.currentTime),m=Math.floor(s/60);s%=60;
-    document.getElementById('audio-status').textContent='🔊 '+m+':'+String(s).padStart(2,'0')+' '+audio.playbackRate.toFixed(1)+'x';
+    statusEl.textContent='🔊 '+m+':'+String(s).padStart(2,'0')+' '+audio.playbackRate.toFixed(1)+'x';
   }
 });
 audio.addEventListener('ended',()=>{
-  if(current<TOTAL){current++;showSlide(current);setTimeout(()=>playCurrent(),500);}
-  else{isPlaying=false;updatePlayBtn();document.getElementById('audio-status').textContent='✅ 完成';document.getElementById('progress-bar').style.width='100%';}
+  if(current<TOTAL){current++;showSlide(current);audio.src=src(current);audio.load();setTimeout(()=>playCurrent(),400);}
+  else{isPlaying=false;updatePlayBtn();statusEl.textContent='✅ 完成';document.getElementById('progress-bar').style.width='100%';}
 });
 audio.addEventListener('error',()=>{
-  document.getElementById('audio-status').textContent='❌';isPlaying=false;updatePlayBtn();
+  statusEl.textContent='❌';isPlaying=false;updatePlayBtn();
 });
 document.addEventListener('keydown',(e)=>{
   if(e.key==='ArrowLeft')prevSlide();
