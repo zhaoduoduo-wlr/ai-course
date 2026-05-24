@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>AI技术底层逻辑 — 微课 v4.2 · 1920高清</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:"Microsoft YaHei","PingFang SC",sans-serif;background:#000;height:100vh;display:flex;flex-direction:column;overflow:hidden}
+.header{background:linear-gradient(135deg,#0d1b2a,#1b2838);padding:12px 20px;display:flex;align-items:center;gap:12px;border-bottom:1px solid #1e3a5f;flex-shrink:0;transition:opacity .4s,transform .4s;z-index:100}
+.header .logo{font-size:18px}
+.header h2{font-size:15px;font-weight:500;color:#64b5f6}
+.header.hidden{opacity:0;transform:translateY(-100%);pointer-events:none}
+.version{color:#546e7a;font-size:11px;margin-left:auto}
+.main{flex:1;display:flex;align-items:center;justify-content:center;padding:0;background:#000}
+.slide{display:none;width:100%;height:100%;background-size:contain;background-position:center;background-repeat:no-repeat;position:relative}
+.slide.active{display:block;animation:fadeIn .4s ease}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.controls{background:rgba(13,27,42,0.95);padding:14px 20px;display:flex;align-items:center;justify-content:center;gap:12px;border-top:1px solid #1e3a5f;flex-shrink:0;transition:opacity .4s,transform .4s;z-index:100;position:relative}
+.controls.hidden{opacity:0;transform:translateY(100%);pointer-events:none}
+.controls button{background:#1a3350;border:1px solid #2a5080;color:#90caf9;padding:8px 14px;border-radius:8px;cursor:pointer;font-size:13px;transition:all .2s}
+.controls button:hover{background:#244878;border-color:#64b5f6}
+.controls button:disabled{opacity:.3;cursor:default}
+.controls button.play-btn{background:#1565c0;border-color:#1976d2;color:#fff;font-size:16px;padding:10px 24px;border-radius:10px}
+.speed-group{display:flex;gap:3px}.speed-btn{padding:5px 10px!important;font-size:11px!important;min-width:38px}
+.speed-btn.active-speed{background:#1565c0!important;border-color:#2196f3!important;color:#fff!important}
+.progress{width:100px;height:14px;background:#1e3050;border-radius:7px;overflow:hidden;cursor:pointer}
+.progress-bar{height:4px;background:#2196f3;width:0;transition:width .1s linear;border-radius:2px}
+.audio-status{font-size:11px;color:#546e7a;min-width:50px;text-align:center}
+.page-nav{display:flex;align-items:center;gap:8px}
+.page-nav span{font-size:13px;color:#90caf9;min-width:30px;text-align:center}
+.page-slider{-webkit-appearance:none;width:100px;height:5px;background:#1e3050;border-radius:3px;outline:none;cursor:pointer}
+.page-slider::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:#2196f3;cursor:pointer;border:2px solid #64b5f6}
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="logo">🏢</div>
+  <h2>AI技术底层逻辑</h2>
+  <span class="version">微课 v4.2 · 1920高清+音频修复</span>
+</div>
+<div class="main" id="main-area" style="cursor:pointer" onclick="togglePlay()">
+  <div class="slide" id="slide-1" style="background-image:url('slides_v4.2/slide_01.png');"></div>
+  <div class="slide" id="slide-2" style="background-image:url('slides_v4.2/slide_02.png');"></div>
+  <div class="slide" id="slide-3" style="background-image:url('slides_v4.2/slide_03.png');"></div>
+  <div class="slide" id="slide-4" style="background-image:url('slides_v4.2/slide_04.png');"></div>
+  <div class="slide" id="slide-5" style="background-image:url('slides_v4.2/slide_05.png');"></div>
+  <div class="slide" id="slide-6" style="background-image:url('slides_v4.2/slide_06.png');"></div>
+  <div class="slide" id="slide-7" style="background-image:url('slides_v4.2/slide_07.png');"></div>
+  <div class="slide" id="slide-8" style="background-image:url('slides_v4.2/slide_08.png');"></div>
+  <div class="slide" id="slide-9" style="background-image:url('slides_v4.2/slide_09.png');"></div>
+  <div class="slide" id="slide-10" style="background-image:url('slides_v4.2/slide_10.png');"></div>
+  <div class="slide" id="slide-11" style="background-image:url('slides_v4.2/slide_11.png');"></div>
+  <div class="slide" id="slide-12" style="background-image:url('slides_v4.2/slide_12.png');"></div>
+  <div class="slide" id="slide-13" style="background-image:url('slides_v4.2/slide_13.png');"></div>
+  <div class="slide" id="slide-14" style="background-image:url('slides_v4.2/slide_14.png');"></div>
+  <div class="slide" id="slide-15" style="background-image:url('slides_v4.2/slide_15.png');"></div>
+  <div class="slide" id="slide-16" style="background-image:url('slides_v4.2/slide_16.png');"></div>
+  <div class="slide" id="slide-17" style="background-image:url('slides_v4.2/slide_17.png');"></div>
+  <div class="slide" id="slide-18" style="background-image:url('slides_v4.2/slide_18.png');"></div>
+</div>
+<div class="controls">
+  <button onclick="prevSlide()" id="btn-prev">◀ 上一页</button>
+  <button class="play-btn" onclick="togglePlay()" id="btn-play">▶ 播放</button>
+  <button onclick="nextSlide()" id="btn-next">下一页 ▶</button>
+  <div class="speed-group">
+    <button class="speed-btn active-speed" onclick="setSpeed(1)" id="spd-1">1x</button>
+    <button class="speed-btn" onclick="setSpeed(1.2)" id="spd-1.2">1.2x</button>
+    <button class="speed-btn" onclick="setSpeed(1.5)" id="spd-1.5">1.5x</button>
+    <button class="speed-btn" onclick="setSpeed(2)" id="spd-2">2x</button>
+  </div>
+  <div class="progress" id="progress-wrap"><div class="progress-bar" id="progress-bar"></div></div>
+  <span class="audio-status" id="audio-status">⏸</span>
+  <div class="page-nav">
+    <span id="page-label">1/18</span>
+    <input type="range" id="page-slider" min="1" max="18" value="1" class="page-slider">
+  </div>
+</div>
+<audio id="audio-player" preload="none"></audio>
+<script>
+const TOTAL=18;let current=1,isPlaying=false,currentSpeed=1;
+let audio=document.getElementById('audio-player');
+let slider=document.getElementById('page-slider');
+let pageLabel=document.getElementById('page-label');
+slider.addEventListener('input',()=>{goTo(parseInt(slider.value));});
+document.getElementById('progress-wrap').addEventListener('click',(e)=>{
+  if(!audio.duration)return;
+  let rect=e.target.closest('.progress').getBoundingClientRect();
+  audio.currentTime=((e.clientX-rect.left)/rect.width)*audio.duration;
+});
+function showSlide(n){
+  document.querySelectorAll('.slide').forEach(s=>s.classList.remove('active'));
+  let slide=document.getElementById('slide-'+n);
+  if(slide)slide.classList.add('active');
+  document.getElementById('btn-prev').disabled=(n<=1);
+  document.getElementById('btn-next').disabled=(n>=TOTAL);
+  slider.value=n;pageLabel.textContent=n+'/'+TOTAL;current=n;
+}
+function goTo(n){
+  if(n<1||n>TOTAL)return;
+  let wasPlaying=isPlaying;audio.pause();isPlaying=false;updatePlayBtn();
+  document.getElementById('audio-status').textContent='⏸';
+  document.getElementById('progress-bar').style.width='0%';
+  showSlide(n);
+  if(wasPlaying)setTimeout(()=>playCurrent(),200);
+}
+function prevSlide(){goTo(current-1);}
+function nextSlide(){goTo(current+1);}
+function togglePlay(){
+  if(isPlaying){audio.pause();isPlaying=false;document.getElementById('audio-status').textContent='⏸';updatePlayBtn();}
+  else playCurrent();
+}
+function playCurrent(){
+  audio.src='audio/slide_'+String(current).padStart(2,'0')+'.mp3';
+  audio.load();audio.playbackRate=currentSpeed;
+  audio.play().then(()=>{
+    isPlaying=true;updatePlayBtn();
+    document.getElementById('audio-status').textContent='🔊 '+audio.playbackRate.toFixed(1)+'x';
+  }).catch(e=>{
+    document.getElementById('audio-status').textContent='❌';isPlaying=false;updatePlayBtn();
+  });
+}
+function updatePlayBtn(){
+  document.getElementById('btn-play').textContent=isPlaying?'⏸ 暂停':'▶ 播放';
+}
+function setSpeed(rate){
+  currentSpeed=rate;audio.playbackRate=rate;
+  document.querySelectorAll('.speed-btn').forEach(b=>b.classList.remove('active-speed'));
+  let btn=document.getElementById('spd-'+rate);
+  if(btn)btn.classList.add('active-speed');
+  if(isPlaying)document.getElementById('audio-status').textContent='🔊 '+rate.toFixed(1)+'x';
+}
+audio.addEventListener('timeupdate',()=>{
+  if(audio.duration){
+    document.getElementById('progress-bar').style.width=(audio.currentTime/audio.duration*100)+'%';
+    let s=Math.floor(audio.currentTime),m=Math.floor(s/60);s%=60;
+    document.getElementById('audio-status').textContent='🔊 '+m+':'+String(s).padStart(2,'0')+' '+audio.playbackRate.toFixed(1)+'x';
+  }
+});
+audio.addEventListener('ended',()=>{
+  if(current<TOTAL){current++;showSlide(current);setTimeout(()=>playCurrent(),500);}
+  else{isPlaying=false;updatePlayBtn();document.getElementById('audio-status').textContent='✅ 完成';document.getElementById('progress-bar').style.width='100%';}
+});
+audio.addEventListener('error',()=>{
+  document.getElementById('audio-status').textContent='❌';isPlaying=false;updatePlayBtn();
+});
+document.addEventListener('keydown',(e)=>{
+  if(e.key==='ArrowLeft')prevSlide();
+  if(e.key==='ArrowRight')nextSlide();
+  if(e.key===' '){e.preventDefault();togglePlay();}
+  if(e.key==='1')setSpeed(1);if(e.key==='2')setSpeed(1.2);
+  if(e.key==='3')setSpeed(1.5);if(e.key==='4')setSpeed(2);
+});
+let hideTimer,ctrls=document.querySelector('.controls'),hdr=document.querySelector('.header');
+function showCtrls(){
+  ctrls.classList.remove('hidden');hdr.classList.remove('hidden');
+  if(hideTimer)clearTimeout(hideTimer);
+  if(isPlaying)hideTimer=setTimeout(()=>{ctrls.classList.add('hidden');hdr.classList.add('hidden');},3000);
+}
+let _mc=0;
+document.addEventListener('mousemove',()=>{
+  if(Date.now()-_mc>200){_mc=Date.now();showCtrls();}
+});
+ctrls.addEventListener('mouseenter',()=>{if(hideTimer)clearTimeout(hideTimer);});
+ctrls.addEventListener('mouseleave',()=>{
+  if(isPlaying)hideTimer=setTimeout(()=>{ctrls.classList.add('hidden');hdr.classList.add('hidden');},1000);
+});
+let _p=playCurrent;playCurrent=function(){_p();setTimeout(()=>{if(isPlaying)hideTimer=setTimeout(()=>{ctrls.classList.add('hidden');hdr.classList.add('hidden');},3000);},100);};
+let _t=togglePlay;togglePlay=function(){_t();if(!isPlaying)showCtrls();else setTimeout(()=>{hideTimer=setTimeout(()=>{ctrls.classList.add('hidden');hdr.classList.add('hidden');},3000);},100);};
+showSlide(1);setTimeout(()=>{ctrls.classList.add('hidden');hdr.classList.add('hidden');},3000);
+</script>
+</body>
+</html>

@@ -1,0 +1,27 @@
+[
+  {
+    "title": "free-claude-code：用代理把 Claude Code 接到 OpenRouter...",
+    "href": "https://www.knightli.com/2026/05/01/free-claude-code-anthropic-compatible-proxy/",
+    "body": "整理 free-claude-code 的定位、工作方式和使用边界：它如何通过 Anthropic-compatible proxy，让 Claude Code 接入 OpenRouter、DeepSeek、NVIDIA NIM、LM Studio、llama.cpp 和 Ollama 等模型后端。"
+  },
+  {
+    "title": "DeepSeek v3.1 到底有多强？ 与 Claude Code 一起实测！ - 53AI-AI...",
+    "href": "https://www.53ai.com/news/LargeLanguageModel/2025082083105.html",
+    "body": "DeepSeek v3.1 到底有多强？ 与 Claude Code 一起实测！ 发布日期：2025-08-20 10:26:49 浏览次数： 6588.在配置界面中，添加一个新的 DeepSeek provider，把默认路由改为deepseek-chat。"
+  },
+  {
+    "title": "从Cursor、Claude Code到DeepSeek-TUI：2026年五大开源AI...",
+    "href": "https://developer.aliyun.com/article/1734133",
+    "body": "同样导出一个CSV功能，DeepSeek-V3的API花费大约是Claude 3.5 Sonnet的1/10。DeepSeek-TUI 实测：Claude Code 用户能无痛切换吗？"
+  },
+  {
+    "title": "Claude Code + Kimi-K2 官方适配 配置教程 - H5L0 - 博客园",
+    "href": "https://www.cnblogs.com/h5l0/p/18980806",
+    "body": "特别有意思的是，Kimi官方API适配了Anthropic API，所以我们可以将AI命令行编码工具 Claude Code 使用的API换成 Kimi-K2。posted @ 2025-07-12 17:31 H5L0 阅读(6896) 评论(2) 收藏 举报."
+  },
+  {
+    "title": "Claude Code Model Router - Visual Studio Marketplace",
+    "href": "https://marketplace.visualstudio.com/items?itemName=luwill.claude-code-model-router-vscode",
+    "body": "ccmr.defaultModel. deepseek-v4-pro.本扩展直接复用了 claude-code-model-router 的核心： ConfigManager 加载内置 provider 注册表与 alias. createServer() 提供 Express 网关. ModelRouter 完成 Anthropic ↔ 上游 provider 的路由与 SSE 透传."
+  }
+]
