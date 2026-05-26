@@ -2,23 +2,21 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
-<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-<meta http-equiv="Pragma" content="no-cache">
-<meta http-equiv="Expires" content="0">
-<title>AI技术底层逻辑 — 微课 v4.7 · 音频竞态修复</title>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<title>AI技术底层逻辑 — 微课 v4.4 · 极速加载</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:"Microsoft YaHei","PingFang SC",sans-serif;background:#000;height:100vh;height:100dvh;display:flex;flex-direction:column;overflow:hidden}@media(orientation:landscape){body{height:100vh}.header{padding:6px 20px}.header h2{font-size:13px}.controls{padding:8px 20px}.controls button{padding:6px 10px;font-size:11px}.controls button.play-btn{padding:8px 20px;font-size:14px}}
+body{font-family:"Microsoft YaHei","PingFang SC",sans-serif;background:#000;height:100vh;display:flex;flex-direction:column;overflow:hidden}
 .header{background:linear-gradient(135deg,#0d1b2a,#1b2838);padding:12px 20px;display:flex;align-items:center;gap:12px;border-bottom:1px solid #1e3a5f;flex-shrink:0;transition:opacity .4s,transform .4s;z-index:100}
 .header .logo{font-size:18px}
 .header h2{font-size:15px;font-weight:500;color:#64b5f6}
 .header.hidden{opacity:0;transform:translateY(-100%);pointer-events:none}
 .version{color:#546e7a;font-size:11px;margin-left:auto}
-.main{flex:1;display:flex;align-items:center;justify-content:center;padding:0;background:#000;position:relative}
-.slide{position:absolute;inset:0;background-size:contain;background-position:center;background-repeat:no-repeat;opacity:0;transition:opacity .3s}
-.slide.active{opacity:1}
-.controls{background:rgba(13,27,42,0.95);padding:14px 20px;display:flex;align-items:center;justify-content:center;gap:12px;border-top:1px solid #1e3a5f;flex-shrink:0;transition:opacity .4s,transform .4s;z-index:100;position:relative;flex-wrap:wrap}
+.main{flex:1;display:flex;align-items:center;justify-content:center;padding:0;background:#000}
+.slide{display:none;width:100%;height:100%;background-size:contain;background-position:center;background-repeat:no-repeat;position:relative}
+.slide.active{display:block;animation:fadeIn .4s ease}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.controls{background:rgba(13,27,42,0.95);padding:14px 20px;display:flex;align-items:center;justify-content:center;gap:12px;border-top:1px solid #1e3a5f;flex-shrink:0;transition:opacity .4s,transform .4s;z-index:100;position:relative}
 .controls.hidden{opacity:0;transform:translateY(100%);pointer-events:none}
 .controls button{background:#1a3350;border:1px solid #2a5080;color:#90caf9;padding:8px 14px;border-radius:8px;cursor:pointer;font-size:13px;transition:all .2s}
 .controls button:hover{background:#244878;border-color:#64b5f6}
@@ -33,35 +31,33 @@ body{font-family:"Microsoft YaHei","PingFang SC",sans-serif;background:#000;heig
 .page-nav span{font-size:13px;color:#90caf9;min-width:30px;text-align:center}
 .page-slider{-webkit-appearance:none;width:100px;height:5px;background:#1e3050;border-radius:3px;outline:none;cursor:pointer}
 .page-slider::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:#2196f3;cursor:pointer;border:2px solid #64b5f6}
-.loading{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:#64b5f6;font-size:18px;z-index:10}
 </style>
 </head>
 <body>
 <div class="header">
   <div class="logo">🏢</div>
   <h2>AI技术底层逻辑</h2>
-  <span class="version">v4.4b · 修复手机播放</span>
+  <span class="version">v4.4 · 极速加载</span>
 </div>
-<div class="main" id="main-area">
-  <div class="loading" id="loading-hint">加载中...</div>
-  <div class="slide active" id="slide-1"></div>
-  <div class="slide" id="slide-2"></div>
-  <div class="slide" id="slide-3"></div>
-  <div class="slide" id="slide-4"></div>
-  <div class="slide" id="slide-5"></div>
-  <div class="slide" id="slide-6"></div>
-  <div class="slide" id="slide-7"></div>
-  <div class="slide" id="slide-8"></div>
-  <div class="slide" id="slide-9"></div>
-  <div class="slide" id="slide-10"></div>
-  <div class="slide" id="slide-11"></div>
-  <div class="slide" id="slide-12"></div>
-  <div class="slide" id="slide-13"></div>
-  <div class="slide" id="slide-14"></div>
-  <div class="slide" id="slide-15"></div>
-  <div class="slide" id="slide-16"></div>
-  <div class="slide" id="slide-17"></div>
-  <div class="slide" id="slide-18"></div>
+<div class="main" id="main-area" onclick="handleSlideTap(event)">
+  <div class="slide" id="slide-1" data-src="slides_webp/slide_01.webp"></div>
+  <div class="slide" id="slide-2" data-src="slides_webp/slide_02.webp"></div>
+  <div class="slide" id="slide-3" data-src="slides_webp/slide_03.webp"></div>
+  <div class="slide" id="slide-4" data-src="slides_webp/slide_04.webp"></div>
+  <div class="slide" id="slide-5" data-src="slides_webp/slide_05.webp"></div>
+  <div class="slide" id="slide-6" data-src="slides_webp/slide_06.webp"></div>
+  <div class="slide" id="slide-7" data-src="slides_webp/slide_07.webp"></div>
+  <div class="slide" id="slide-8" data-src="slides_webp/slide_08.webp"></div>
+  <div class="slide" id="slide-9" data-src="slides_webp/slide_09.webp"></div>
+  <div class="slide" id="slide-10" data-src="slides_webp/slide_10.webp"></div>
+  <div class="slide" id="slide-11" data-src="slides_webp/slide_11.webp"></div>
+  <div class="slide" id="slide-12" data-src="slides_webp/slide_12.webp"></div>
+  <div class="slide" id="slide-13" data-src="slides_webp/slide_13.webp"></div>
+  <div class="slide" id="slide-14" data-src="slides_webp/slide_14.webp"></div>
+  <div class="slide" id="slide-15" data-src="slides_webp/slide_15.webp"></div>
+  <div class="slide" id="slide-16" data-src="slides_webp/slide_16.webp"></div>
+  <div class="slide" id="slide-17" data-src="slides_webp/slide_17.webp"></div>
+  <div class="slide" id="slide-18" data-src="slides_webp/slide_18.webp"></div>
 </div>
 <div class="controls" id="controls-bar">
   <button onclick="prevSlide()" id="btn-prev">◀</button>
@@ -80,151 +76,136 @@ body{font-family:"Microsoft YaHei","PingFang SC",sans-serif;background:#000;heig
     <input type="range" id="page-slider" min="1" max="18" value="1" class="page-slider">
   </div>
 </div>
-<audio id="audio-player" preload="none"></audio>
-<audio id="audio-preload" preload="none" style="display:none"></audio>
-
+<audio id="audio-player" preload="auto"></audio>
+<audio id="audio-preload" preload="auto" style="display:none"></audio>
 <script>
+// ==== 懒加载图片 (IntersectionObserver) ====
+const imgObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      const slide = entry.target;
+      const src = slide.dataset.src;
+      if (src && !slide.dataset.loaded) {
+        slide.style.backgroundImage = `url('${src}')`;
+        slide.dataset.loaded = '1';
+        imgObserver.unobserve(slide);
+      }
+    }
+  });
+}, { rootMargin: '200%' }); // 预加载前后各2页
 
-const TOTAL=18;
-let current=1,isPlaying=false,currentSpeed=1;
+function lazyLoadSlide(n) {
+  const slide = document.getElementById('slide-' + n);
+  if (slide && !slide.dataset.loaded) {
+    imgObserver.observe(slide);
+  }
+}
+
+// 立即加载第1页
+(function() {
+  const s1 = document.getElementById('slide-1');
+  if (s1 && s1.dataset.src) {
+    s1.style.backgroundImage = `url('${s1.dataset.src}')`;
+    s1.dataset.loaded = '1';
+  }
+  // 预加载前后各2页
+  for (let i = 2; i <= 3; i++) lazyLoadSlide(i);
+  for (let i = 17; i <= 18; i++) lazyLoadSlide(i);
+})();
+
+const TOTAL=18;let current=1,isPlaying=false,currentSpeed=1;
 let audio=document.getElementById('audio-player');
 let preload=document.getElementById('audio-preload');
 let slider=document.getElementById('page-slider');
 let pageLabel=document.getElementById('page-label');
 let statusEl=document.getElementById('audio-status');
-let loadingEl=document.getElementById('loading-hint');
-let mainArea=document.getElementById('main-area');
-
-const slideImg=n=>'slides_v4.2/slide_'+String(n).padStart(2,'0')+'.png';
-const audioSrc=n=>'audio/slide_'+String(n).padStart(2,'0')+'.mp3';
-
-// ===== 图片：直接设背景图 + 预加载下3页 =====
-const imgPreloaded={};
-function showSlide(n){
-  document.querySelectorAll('.slide').forEach(s=>s.classList.remove('active'));
-  let target=document.getElementById('slide-'+n);
-  if(target){target.classList.add('active');target.style.backgroundImage='url('+slideImg(n)+')';}
-  document.getElementById('btn-prev').disabled=(n<=1);
-  document.getElementById('btn-next').disabled=(n>=TOTAL);
-  slider.value=n;pageLabel.textContent=n+'/'+TOTAL;current=n;
-  if(loadingEl)loadingEl.style.display='none';
-  // 预加载下3张图
-  for(let i=n+1;i<=Math.min(n+3,TOTAL);i++){
-    if(!imgPreloaded[i]){
-      imgPreloaded[i]=true;
-      let s=document.getElementById('slide-'+i);
-      if(s&&!s.style.backgroundImage)s.style.backgroundImage='url('+slideImg(i)+')';
-    }
-  }
-}
-
-// ===== 音频：Promise 等就绪 + 倍速在播放前设置 =====
-function ensureAudioReady(n){
-  return new Promise((resolve,reject)=>{
-    // 已经是同一段且就绪 → 直接返回
-    if(audio.src&&audio.src.indexOf('slide_'+String(n).padStart(2,'0'))!==-1&&audio.readyState>=2){
-      resolve();return;
-    }
-    // ★ 先挂监听器，再设 src（避免竞态）
-    let done=false;
-    function ready(){if(!done){done=true;resolve();}}
-    function fail(e){if(!done){done=true;reject(e);}}
-    audio.addEventListener('canplaythrough',ready,{once:true});
-    audio.addEventListener('loadeddata',ready,{once:true});
-    audio.addEventListener('error',fail,{once:true});
-    // 设 src 触发加载（不调 load()，避免重复）
-    audio.src=audioSrc(n);
-    // 5秒超时保底
-    setTimeout(()=>{if(!done){done=true;reject(new Error('timeout'));}},5000);
-  });
-}
-
-// ===== 播放：倍速在 audio.play() 前一刻设置 =====
-function playCurrent(){
-  statusEl.textContent='⏳';updatePlayBtn();
-
-  // 预加载下2个音频（后台悄悄加载）
-  for(let i=current+1;i<=Math.min(current+2,TOTAL);i++){
-    let u=audioSrc(i);
-    if(preload.src!==u){preload.src=u;}
-  }
-
-  ensureAudioReady(current).then(()=>{
-    // ★ 关键：src 切换会重置 playbackRate，必须在这里重新设
-    audio.playbackRate=currentSpeed;
-    return audio.play();
-  }).then(()=>{
-    isPlaying=true;updatePlayBtn();
-    statusEl.textContent=audio.playbackRate.toFixed(1)+'x';
-  }).catch(e=>{
-    statusEl.textContent='❌';isPlaying=false;updatePlayBtn();
-  });
-}
-
-function togglePlay(){
-  if(isPlaying){audio.pause();isPlaying=false;statusEl.textContent='⏸';updatePlayBtn();}
-  else playCurrent();
-}
-
-function setSpeed(rate){
-  currentSpeed=rate;
-  if(isPlaying)audio.playbackRate=rate;
-  document.querySelectorAll('.speed-btn').forEach(b=>b.classList.remove('active-speed'));
-  let btn=document.getElementById('spd-'+rate);
-  if(btn)btn.classList.add('active-speed');
-  if(isPlaying)statusEl.textContent=rate.toFixed(1)+'x';
-}
-
-function updatePlayBtn(){
-  document.getElementById('btn-play').textContent=isPlaying?'⏸ 暂停':'▶ 播放';
-}
-
-// ===== 导航 =====
-function goTo(n){
-  if(n<1||n>TOTAL||n===current)return;
-  let wasPlaying=isPlaying;
-  audio.pause();isPlaying=false;updatePlayBtn();
-  statusEl.textContent='⏸';
-  document.getElementById('progress-bar').style.width='0%';
-  showSlide(n);
-  if(wasPlaying)playCurrent();
-}
-function prevSlide(){if(current>1)goTo(current-1);}
-function nextSlide(){if(current<TOTAL)goTo(current+1);}
-
-// ===== 滑块防抖 300ms =====
-let sliderTimer;
-slider.addEventListener('input',()=>{
-  clearTimeout(sliderTimer);
-  sliderTimer=setTimeout(()=>goTo(parseInt(slider.value)),300);
-});
-
-// ===== 进度条点击 =====
-document.getElementById('progress-wrap').addEventListener('click',e=>{
+slider.addEventListener('input',()=>{goTo(parseInt(slider.value));});
+document.getElementById('progress-wrap').addEventListener('click',(e)=>{
   if(!audio.duration)return;
   let rect=e.target.closest('.progress').getBoundingClientRect();
   audio.currentTime=((e.clientX-rect.left)/rect.width)*audio.duration;
 });
+document.getElementById('progress-wrap').addEventListener('touchend',(e)=>{
+  if(!audio.duration)return;
+  let rect=e.target.closest('.progress').getBoundingClientRect();
+  let x=e.changedTouches[0].clientX;
+  audio.currentTime=((x-rect.left)/rect.width)*audio.duration;
+});
 
-// ===== timeupdate 节流 =====
-let lastTU=0;
+function src(n){return 'audio/slide_'+String(n).padStart(2,'0')+'.mp3';}
+
+// 提前加载当前页+下一页
+function preloadAudio(n){
+  if(n>=1&&n<=TOTAL){
+    let url=src(n);
+    if(preload.src!==url){preload.src=url;preload.load();}
+  }
+}
+// 页面加载时预加载第1页
+audio.src=src(1);audio.load();preloadAudio(2);
+
+function showSlide(n){
+  document.querySelectorAll('.slide').forEach(s=>s.classList.remove('active'));
+  let slide=document.getElementById('slide-'+n);
+  if(slide)slide.classList.add('active');
+  document.getElementById('btn-prev').disabled=(n<=1);
+  document.getElementById('btn-next').disabled=(n>=TOTAL);
+  slider.value=n;pageLabel.textContent=n+'/'+TOTAL;current=n;
+}
+function goTo(n){
+  if(n<1||n>TOTAL)return;
+  let wasPlaying=isPlaying;audio.pause();isPlaying=false;updatePlayBtn();
+  statusEl.textContent='⏸';
+  document.getElementById('progress-bar').style.width='0%';
+  showSlide(n);
+  // 切换时预加载图片
+  lazyLoadSlide(n-1); lazyLoadSlide(n+1);
+  // 切换时预加载音频
+  audio.src=src(n);audio.load();preloadAudio(n+1);
+  if(wasPlaying)setTimeout(()=>playCurrent(),200);
+}
+function prevSlide(){goTo(current-1);}
+function nextSlide(){goTo(current+1);}
+function togglePlay(){
+  if(isPlaying){audio.pause();isPlaying=false;statusEl.textContent='⏸';updatePlayBtn();}
+  else playCurrent();
+}
+function playCurrent(){
+  statusEl.textContent='⏳';updatePlayBtn();
+  audio.playbackRate=currentSpeed;
+  audio.play().then(()=>{
+    isPlaying=true;updatePlayBtn();
+    statusEl.textContent='🔊 '+audio.playbackRate.toFixed(1)+'x';
+    preloadAudio(current+1);
+  }).catch(e=>{
+    statusEl.textContent='❌';isPlaying=false;updatePlayBtn();
+  });
+}
+function updatePlayBtn(){
+  document.getElementById('btn-play').textContent=isPlaying?'⏸ 暂停':'▶ 播放';
+}
+function setSpeed(rate){
+  currentSpeed=rate;audio.playbackRate=rate;
+  document.querySelectorAll('.speed-btn').forEach(b=>b.classList.remove('active-speed'));
+  let btn=document.getElementById('spd-'+rate);
+  if(btn)btn.classList.add('active-speed');
+  if(isPlaying)document.getElementById('audio-status').textContent='🔊 '+rate.toFixed(1)+'x';
+}
 audio.addEventListener('timeupdate',()=>{
-  let now=Date.now();
-  if(now-lastTU<250)return;lastTU=now;
   if(audio.duration){
     document.getElementById('progress-bar').style.width=(audio.currentTime/audio.duration*100)+'%';
+    let s=Math.floor(audio.currentTime),m=Math.floor(s/60);s%=60;
+    statusEl.textContent='🔊 '+m+':'+String(s).padStart(2,'0')+' '+audio.playbackRate.toFixed(1)+'x';
   }
 });
-
 audio.addEventListener('ended',()=>{
-  if(current<TOTAL){goTo(current+1);setTimeout(()=>{if(!isPlaying)playCurrent();},400);}
-  else{isPlaying=false;updatePlayBtn();statusEl.textContent='✅';document.getElementById('progress-bar').style.width='100%';}
+  if(current<TOTAL){current++;showSlide(current);audio.src=src(current);audio.load();setTimeout(()=>playCurrent(),400);}
+  else{isPlaying=false;updatePlayBtn();statusEl.textContent='✅ 完成';document.getElementById('progress-bar').style.width='100%';}
 });
-
-audio.addEventListener('error',()=>{isPlaying=false;updatePlayBtn();statusEl.textContent='❌';});
-
-// ===== 键盘 =====
-document.addEventListener('keydown',e=>{
+audio.addEventListener('error',()=>{
+  statusEl.textContent='❌';isPlaying=false;updatePlayBtn();
+});
+document.addEventListener('keydown',(e)=>{
   if(e.key==='ArrowLeft')prevSlide();
   if(e.key==='ArrowRight')nextSlide();
   if(e.key===' '){e.preventDefault();togglePlay();}
@@ -232,38 +213,46 @@ document.addEventListener('keydown',e=>{
   if(e.key==='3')setSpeed(1.5);if(e.key==='4')setSpeed(2);
 });
 
-// ===== 触摸 =====
-let tsX=0,tsY=0;
-document.addEventListener('touchstart',e=>{tsX=e.touches[0].clientX;tsY=e.touches[0].clientY;},{passive:true});
-document.addEventListener('touchend',e=>{
-  let dx=e.changedTouches[0].clientX-tsX,dy=e.changedTouches[0].clientY-tsY;
-  if(Math.abs(dx)>Math.abs(dy)&&Math.abs(dx)>40){dx>0?prevSlide():nextSlide();}
+// 手机触摸滑动
+let touchStartX=0,touchStartY=0;
+document.addEventListener('touchstart',(e)=>{touchStartX=e.touches[0].clientX;touchStartY=e.touches[0].clientY;},{passive:true});
+document.addEventListener('touchend',(e)=>{
+  let dx=e.changedTouches[0].clientX-touchStartX;
+  let dy=e.changedTouches[0].clientY-touchStartY;
+  if(Math.abs(dx)>Math.abs(dy)&&Math.abs(dx)>40){
+    dx>0?prevSlide():nextSlide();
+  }
 });
 
-// ===== 点击主区域 =====
-mainArea.addEventListener('click',function(e){
+// 点击主区域切换播放
+function handleSlideTap(e){
   if(e.target.closest('.controls'))return;
-  let rect=mainArea.getBoundingClientRect(),x=e.clientX-rect.left;
-  if(x<rect.width*.25)prevSlide();else if(x>rect.width*.75)nextSlide();else togglePlay();
-});
+  if(e.target.closest('button'))return;
+  let rect=e.target.closest('.main').getBoundingClientRect();
+  let x=e.clientX-rect.left;
+  if(x<rect.width*.3)prevSlide();
+  else if(x>rect.width*.7)nextSlide();
+  else togglePlay();
+}
 
-// ===== 自动隐藏 =====
+// Header/Controls 联动隐藏
 let hideTimer,ctrls=document.getElementById('controls-bar'),hdr=document.querySelector('.header');
 function showCtrls(){
   ctrls.classList.remove('hidden');hdr.classList.remove('hidden');
   if(hideTimer)clearTimeout(hideTimer);
   if(isPlaying)hideTimer=setTimeout(()=>{ctrls.classList.add('hidden');hdr.classList.add('hidden');},3000);
 }
-let mc=0;
-document.addEventListener('mousemove',()=>{let now=Date.now();if(now-mc>300){mc=now;showCtrls();}});
+let _mc=0;
+document.addEventListener('mousemove',()=>{
+  if(Date.now()-_mc>200){_mc=Date.now();showCtrls();}
+});
 ctrls.addEventListener('mouseenter',()=>{if(hideTimer)clearTimeout(hideTimer);});
-ctrls.addEventListener('mouseleave',()=>{if(isPlaying)hideTimer=setTimeout(()=>{ctrls.classList.add('hidden');hdr.classList.add('hidden');},1000);});
-
-// ===== 初始化 =====
-showSlide(1);
-audio.src=audioSrc(1);
-setTimeout(()=>{ctrls.classList.add('hidden');hdr.classList.add('hidden');},3000);
-
+ctrls.addEventListener('mouseleave',()=>{
+  if(isPlaying)hideTimer=setTimeout(()=>{ctrls.classList.add('hidden');hdr.classList.add('hidden');},1000);
+});
+let _p=playCurrent;playCurrent=function(){_p();setTimeout(()=>{if(isPlaying)hideTimer=setTimeout(()=>{ctrls.classList.add('hidden');hdr.classList.add('hidden');},3000);},100);};
+let _t=togglePlay;togglePlay=function(){_t();if(!isPlaying)showCtrls();else setTimeout(()=>{hideTimer=setTimeout(()=>{ctrls.classList.add('hidden');hdr.classList.add('hidden');},3000);},100);};
+showSlide(1);setTimeout(()=>{ctrls.classList.add('hidden');hdr.classList.add('hidden');},3000);
 </script>
 </body>
 </html>
