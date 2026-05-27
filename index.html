@@ -3,29 +3,41 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>微课堂</title>
+<title>智融学堂 · 微课导航</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:"Microsoft YaHei","PingFang SC",sans-serif;background:linear-gradient(135deg,#0d1b2a,#1b2838);color:#90caf9;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:40px 20px}
+body{background:linear-gradient(135deg,#0a0e17 0%,#1a1f2e 100%);color:#e0e0e0;font-family:"Microsoft YaHei","PingFang SC",sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:40px 20px}
 h1{font-size:28px;color:#64b5f6;margin-bottom:8px}
 .sub{color:#546e7a;font-size:14px;margin-bottom:40px}
-.cards{display:flex;flex-wrap:wrap;gap:20px;max-width:600px;justify-content:center}
-.card{background:rgba(26,51,80,0.6);border:1px solid #2a5080;border-radius:12px;padding:24px;width:280px;cursor:pointer;transition:all .3s;text-decoration:none;color:inherit}
-.card:hover{background:rgba(36,72,120,0.8);border-color:#64b5f6;transform:translateY(-2px)}
-.card h2{font-size:18px;color:#fff;margin-bottom:8px}
-.card p{font-size:13px;color:#78909c}
-.card .tag{display:inline-block;background:#1565c0;color:#fff;padding:2px 8px;border-radius:4px;font-size:11px;margin-top:10px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:20px;max-width:1100px;width:100%}
+.card{background:rgba(26,51,80,0.5);border:1px solid #2a5080;border-radius:14px;padding:24px;cursor:pointer;transition:all .25s;text-decoration:none;color:#e0e0e0}
+.card:hover{background:rgba(26,51,80,0.8);border-color:#64b5f6;transform:translateY(-2px);box-shadow:0 8px 30px rgba(33,150,243,0.15)}
+.card h2{font-size:18px;color:#90caf9;margin-bottom:8px}
+.card p{font-size:13px;color:#78909c;line-height:1.6}
+.card .meta{font-size:11px;color:#546e7a;margin-top:12px}
+.footer{margin-top:60px;font-size:12px;color:#37474f}
 </style>
 </head>
 <body>
-<h1>📚 微课堂</h1>
-<p class="sub">点击课件开始学习</p>
-<div class="cards">
-  <a class="card" href="AI技术底层逻辑/">
-    <h2>AI技术底层逻辑</h2>
-    <p>18节微课 · 带你搞懂AI是怎么工作的</p>
-    <span class="tag">v4.7</span>
-  </a>
+<h1>📚 智融学堂</h1>
+<p class="sub">企业数字化培训 · AI 系列微课</p>
+<div class="grid">
+<a class="card" href="AI技术底层逻辑/index.html">
+<h2>🔬 AI技术底层逻辑</h2>
+<p>从LLM到Agent/Skill——理解AI能力的本质与边界</p>
+<span class="meta">18页 · 带配音</span>
+</a>
+<a class="card" href="skills-mcp/index.html">
+<h2>🧩 Skills与MCP</h2>
+<p>AI能力的标准化模块与生态管理——如何让AI协作更高效</p>
+<span class="meta">26页 · 带配音</span>
+</a>
+<a class="card" href="sanhua/index.html">
+<h2>🏗️ 三化架构培训</h2>
+<p>企业数字化变革：架构化、平台化、智能化</p>
+<span class="meta">9页 · 带配音</span>
+</a>
 </div>
+<p class="footer">内部分享 · GitHub Pages 托管</p>
 </body>
 </html>
