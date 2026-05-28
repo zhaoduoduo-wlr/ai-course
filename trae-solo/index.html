@@ -100,7 +100,7 @@ body{font-family:"Microsoft YaHei","PingFang SC",sans-serif;background:#000;heig
 <audio id="audio-player" preload="none"></audio>
 <audio id="audio-preload" preload="none" style="display:none"></audio>
 <script>
-const TOTAL=39;let current=1,isPlaying=false,currentSpeed=1;
+const TOTAL=40;let current=1,isPlaying=false,currentSpeed=1;
 let audio=document.getElementById('audio-player');
 let preload=document.getElementById('audio-preload');
 let slider=document.getElementById('page-slider');
@@ -172,7 +172,7 @@ function showSlide(n){
 }
 
 function goTo(n){
-  if(n>=23) n=n+1;
+  if(n===23) n=(n>current)?24:22;
   if(n<1||n>40)return;
   let wasPlaying=isPlaying;
   audio.pause();isPlaying=false;updatePlayBtn();
