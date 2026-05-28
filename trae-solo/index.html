@@ -61,7 +61,7 @@ body{font-family:"Microsoft YaHei","PingFang SC",sans-serif;background:#000;heig
   <div class="slide" id="slide-20" data-src="slides_img/slide_20.png"></div>
   <div class="slide" id="slide-21" data-src="slides_img/slide_21.png"></div>
   <div class="slide" id="slide-22" data-src="slides_img/slide_22.png"></div>
-  <div class="slide" id="slide-23" data-src="slides_img/slide_23.png"></div>
+  <div class="slide" id="slide-23" data-src="slides_img/slide_23.png" style="display:none"></div>
   <div class="slide" id="slide-24" data-src="slides_img/slide_24.png"></div>
   <div class="slide" id="slide-25" data-src="slides_img/slide_25.png"></div>
   <div class="slide" id="slide-26" data-src="slides_img/slide_26.png"></div>
@@ -100,7 +100,7 @@ body{font-family:"Microsoft YaHei","PingFang SC",sans-serif;background:#000;heig
 <audio id="audio-player" preload="none"></audio>
 <audio id="audio-preload" preload="none" style="display:none"></audio>
 <script>
-const TOTAL=40;let current=1,isPlaying=false,currentSpeed=1;
+const TOTAL=39;let current=1,isPlaying=false,currentSpeed=1;
 let audio=document.getElementById('audio-player');
 let preload=document.getElementById('audio-preload');
 let slider=document.getElementById('page-slider');
@@ -172,8 +172,8 @@ function showSlide(n){
 }
 
 function goTo(n){
-  if(n===23) n = (isPlaying || n>current) ? 24 : 22;
-  if(n<1||n>TOTAL)return;
+  if(n>=23) n=n+1;
+  if(n<1||n>40)return;
   let wasPlaying=isPlaying;
   audio.pause();isPlaying=false;updatePlayBtn();
   document.getElementById('audio-status').textContent='⏸';
@@ -196,7 +196,7 @@ function togglePlay(){
 }
 
 function playCurrent(){
-  if(current===23){current=24;showSlide(24);}
+  if(current===23){current=24;}
   audio.src=src(current);audio.load();
   audio.playbackRate=currentSpeed;
   audio.play().then(function(){
