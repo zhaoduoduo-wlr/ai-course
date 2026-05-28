@@ -172,6 +172,7 @@ function showSlide(n){
 }
 
 function goTo(n){
+  if(n===23) n = (isPlaying || n>current) ? 24 : 22;
   if(n<1||n>TOTAL)return;
   let wasPlaying=isPlaying;
   audio.pause();isPlaying=false;updatePlayBtn();
@@ -195,6 +196,7 @@ function togglePlay(){
 }
 
 function playCurrent(){
+  if(current===23){current=24;showSlide(24);}
   audio.src=src(current);audio.load();
   audio.playbackRate=currentSpeed;
   audio.play().then(function(){
@@ -226,7 +228,7 @@ audio.addEventListener('timeupdate',function(){
 });
 
 audio.addEventListener('ended',function(){
-  if(current<TOTAL){current++;showSlide(current);setTimeout(function(){playCurrent();},500);}
+  if(current<TOTAL){current++;if(current===23)current=24;showSlide(current);setTimeout(function(){playCurrent();},500);}
   else{isPlaying=false;updatePlayBtn();signalStopped();document.getElementById('audio-status').textContent='✅ 完成';document.getElementById('progress-bar').style.width='100%';}
 });
 
