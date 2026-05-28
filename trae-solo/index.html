@@ -98,7 +98,7 @@ body{font-family:"Microsoft YaHei","PingFang SC",sans-serif;background:#000;heig
   </div>
 </div>
 <audio id="audio-player" preload="none"></audio>
-<audio id="audio-preload" preload="none" style="display:none"></audio>
+<audio id="audio-preload" preload="auto" style="display:none"></audio>
 <script>
 const TOTAL=40;let current=1,isPlaying=false,currentSpeed=1;
 let audio=document.getElementById('audio-player');
@@ -181,15 +181,12 @@ function showSlide(n){
   document.getElementById('btn-prev').disabled=(n<=1);
   document.getElementById('btn-next').disabled=(n>=TOTAL);
   slider.value=n;pageLabel.textContent=n+'/'+TOTAL;current=n;
-  // 懒加载当前+前后各1页
+  // 懒加载当前+前后各2页
   lazyLoadImg(n);
   if(n<TOTAL)lazyLoadImg(n+1);
+  if(n+1<TOTAL)lazyLoadImg(n+2);
   if(n>1)lazyLoadImg(n-1);
-}
-
-function goTo(n){
-  if(n===23) n=(n>current)?24:22;
-  if(n<1||n>40)return;
+  if(n>2)lazyLoadImg(n-2);1||n>40)return;
   let wasPlaying=isPlaying;
   audio.pause();isPlaying=false;updatePlayBtn();
   document.getElementById('audio-status').textContent='⏸';
@@ -218,7 +215,7 @@ function playCurrent(){
   audio.play().then(function(){
     isPlaying=true;updatePlayBtn();signalPlaying();
     document.getElementById('audio-status').textContent='🔊 '+audio.playbackRate.toFixed(1)+'x';
-    preloadAudio(current+1);
+    preloadAudio(current+1);preloadAudio(current+2);
   }).catch(function(e){
     document.getElementById('audio-status').textContent='❌';
     isPlaying=false;updatePlayBtn();
