@@ -168,8 +168,8 @@ function showSlide(n){
   document.getElementById('btn-next').disabled=(n>=TOTAL);
   slider.value=n;pageLabel.textContent=n+'/'+TOTAL;current=n;
   lazyLoadImg(n);
-  if(n<TOTAL)lazyLoadImg(n+1);
-  if(n>1)lazyLoadImg(n-1);
+  lazyLoadImg(n+1);if(n+1<TOTAL)lazyLoadImg(n+2);
+  lazyLoadImg(n-1);if(n>2)lazyLoadImg(n-2);
 }
 function goTo(n){
   if(n<1||n>TOTAL)return;
@@ -193,7 +193,7 @@ function playCurrent(){
   audio.play().then(()=>{
     isPlaying=true;updatePlayBtn();signalPlaying();
     statusEl.textContent='🔊 '+audio.playbackRate.toFixed(1)+'x';
-    preloadAudio(current+1);
+    preloadAudio(current+1);preloadAudio(current+2);
   }).catch(e=>{
     statusEl.textContent='❌';isPlaying=false;updatePlayBtn();
   });
@@ -273,3 +273,4 @@ showSlide(1);lazyLoadImg(1);lazyLoadImg(2);lazyLoadImg(3);setTimeout(()=>{ctrls.
 </script>
 </body>
 </html>
+
