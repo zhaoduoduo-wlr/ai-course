@@ -150,13 +150,11 @@ function lazyLoadImg(n){
   if(!slide||slide.style.backgroundImage)return;
   let src=slide.getAttribute('data-src');
   if(!src)return;
+  slide.style.backgroundImage='url('+src+')';
+  slide.removeAttribute('data-src');
   let img=new Image();
-  img.onload=function(){
-    imgCache[n]=true;
-    slide.style.backgroundImage='url('+src+')';
-    slide.removeAttribute('data-src');
-  };
-  img.onerror=function(){imgCache[n]=false;};
+  img.onload=function(){imgCache[n]=true;};
+  img.onerror=function(){imgCache[n]=true;};
   img.src=src;
 }
 
