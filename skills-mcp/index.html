@@ -84,7 +84,7 @@ body{font-family:"Microsoft YaHei","PingFang SC",sans-serif;background:#000;heig
     <input type="range" id="page-slider" min="1" max="26" value="1" class="page-slider">
   </div>
 </div>
-<audio id="audio-player" preload="none"></audio>
+<audio id="audio-player" preload="auto"></audio>
 <script>
 const TOTAL=26,COURSE_ID='ai-course-skills';
 let current=1,isPlaying=false,currentSpeed=1;
@@ -107,6 +107,11 @@ function lazyLoadImg(n){
   slide.style.backgroundImage='url('+src+')';slide.removeAttribute('data-src');
   let img=new Image();img.onload=function(){imgCache[n]=true;};img.onerror=function(){imgCache[n]=true;};img.src=src;
 }
+function preloadAudio(n){
+  if(n<1||n>TOTAL)return;
+  let a=new Audio('audio/slide_'+String(n).padStart(2,'0')+'.mp3');
+  a.preload='auto';a.load();
+}
 let audio=document.getElementById('audio-player');
 let slider=document.getElementById('page-slider');
 let pageLabel=document.getElementById('page-label');
@@ -123,7 +128,7 @@ function showSlide(n){
   document.getElementById('btn-prev').disabled=(n<=1);
   document.getElementById('btn-next').disabled=(n>=TOTAL);
   slider.value=n;pageLabel.textContent=n+'/'+TOTAL;current=n;
-  lazyLoadImg(n);if(n<TOTAL)lazyLoadImg(n+1);if(n>1)lazyLoadImg(n-1);
+  lazyLoadImg(n);if(n<TOTAL)lazyLoadImg(n+1);if(n+1<TOTAL)lazyLoadImg(n+2);if(n>1)lazyLoadImg(n-1);if(n>2)lazyLoadImg(n-2);
 }
 function goTo(n){
   if(n<1||n>TOTAL)return;
@@ -140,7 +145,7 @@ function togglePlay(){
 }
 function playCurrent(){
   audio.src='audio/slide_'+String(current).padStart(2,'0')+'.mp3';
-  audio.load();audio.playbackRate=currentSpeed;
+  audio.load();preloadAudio(current+1);preloadAudio(current+2);audio.playbackRate=currentSpeed;
   audio.play().then(()=>{
     isPlaying=true;updatePlayBtn();signalPlaying();
     document.getElementById('audio-status').textContent='🔊 '+audio.playbackRate.toFixed(1)+'x';
@@ -188,3 +193,4 @@ showSlide(1);lazyLoadImg(1);lazyLoadImg(2);lazyLoadImg(3);setTimeout(()=>{ctrls.
 </script>
 </body>
 </html>
+
