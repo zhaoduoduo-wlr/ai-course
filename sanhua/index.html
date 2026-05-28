@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
 <title>企业数字化变革：三化架构培训PPT — 微课</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
@@ -30,6 +30,38 @@ body{font-family:"Microsoft YaHei","PingFang SC",sans-serif;background:#000;heig
 .page-nav span{font-size:13px;color:#90caf9;min-width:30px;text-align:center}
 .page-slider{-webkit-appearance:none;width:100px;height:5px;background:#1e3050;border-radius:3px;outline:none;cursor:pointer}
 .page-slider::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:#2196f3;cursor:pointer;border:2px solid #64b5f6}
+
+/* === 移动端适配 === */
+@media (max-width:768px){
+  .header{padding:8px 12px}
+  .header h2{font-size:13px}
+  .version{font-size:9px}
+  .controls{padding:8px 10px;gap:6px;flex-wrap:wrap;justify-content:center}
+  .controls button{padding:6px 10px;font-size:11px;border-radius:6px}
+  .controls button.play-btn{padding:8px 16px;font-size:14px}
+  .speed-btn{padding:4px 8px!important;font-size:10px!important;min-width:30px}
+  .progress{width:60px;height:10px}
+  .page-slider{width:60px}
+  .page-nav span{font-size:11px}
+  .audio-status{font-size:10px;min-width:40px}
+}
+@media (max-width:480px){
+  .speed-group{order:10}
+  .progress{order:11}
+  .audio-status{order:12}
+  .page-nav{order:13}
+  #btn-prev,#btn-play,#btn-next{order:1}
+}
+/* 横屏 */
+@media (orientation:landscape) and (max-height:500px){
+  .header{padding:4px 12px}
+  .header h2{font-size:12px}
+  .controls{padding:6px 10px;gap:4px}
+  .controls button{padding:4px 8px;font-size:10px}
+  .controls button.play-btn{padding:6px 12px;font-size:12px}
+  .progress{width:50px;height:8px}
+  .page-slider{width:50px}
+}
 </style>
 </head>
 <body>
