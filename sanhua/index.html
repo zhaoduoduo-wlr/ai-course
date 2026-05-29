@@ -99,7 +99,11 @@ body{font-family:"Microsoft YaHei","PingFang SC",sans-serif;background:#000;heig
 </div>
 <audio id="audio-player" preload="none"></audio>
 <script>
-const TOTAL=9,COURSE_ID='ai-course-sanhua';let current=1,isPlaying=false,currentSpeed=1;const mutexChannel=(function(){
+const TOTAL=9,COURSE_ID='ai-course-sanhua';let current=1,isPlaying=false,currentSpeed=1;
+const NEXT_COURSE='../trae-solo/?autoplay=1';
+const params=new URLSearchParams(location.search);
+if(params.get('autoplay')==='1'){setTimeout(()=>{if(!isPlaying)playCurrent();},1500);}
+const mutexChannel=(function(){
   try{let ch=new BroadcastChannel('ai-course-mutex');
     ch.onmessage=function(e){if(e.data==='stop-others'&&isPlaying){audio.pause();isPlaying=false;updatePlayBtn();document.getElementById('audio-status').textContent='';document.getElementById('progress-bar').style.width='0%';}};
     return ch;}catch(e){return null;}
@@ -166,7 +170,7 @@ audio.addEventListener('timeupdate',()=>{
 });
 audio.addEventListener('ended',()=>{
   if(current<TOTAL){current++;showSlide(current);setTimeout(()=>playCurrent(),500);}
-  else{isPlaying=false;updatePlayBtn();document.getElementById('audio-status').textContent='完成';document.getElementById('progress-bar').style.width='100%';}
+  else{isPlaying=false;updatePlayBtn();document.getElementById('audio-status').textContent='完成 → 下一课件';document.getElementById('progress-bar').style.width='100%';setTimeout(()=>{if(NEXT_COURSE)location.href=NEXT_COURSE;},1500);}
 });
 audio.addEventListener('error',()=>{
   document.getElementById('audio-status').textContent='';isPlaying=false;updatePlayBtn();
