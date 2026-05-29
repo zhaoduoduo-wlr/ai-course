@@ -204,7 +204,7 @@ audio.addEventListener('timeupdate',()=>{
 });
 audio.addEventListener('ended',()=>{
   if(current<TOTAL){current++;showSlide(current);setTimeout(()=>playCurrent(),500);}
-  else{isPlaying=false;updatePlayBtn();document.getElementById('audio-status').textContent='完成';document.getElementById('progress-bar').style.width='100%';}
+  else{isPlaying=false;updatePlayBtn();document.getElementById('audio-status').textContent='全部完成';document.getElementById('progress-bar').style.width='100%';}
 });
 audio.addEventListener('error',()=>{
   document.getElementById('audio-status').textContent='';isPlaying=false;updatePlayBtn();
